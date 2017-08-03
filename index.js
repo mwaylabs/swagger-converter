@@ -429,6 +429,13 @@ prototype.buildDataType = function(oldDataType, allowRef) {
 
   var result = this.buildTypeProperties(oldTypeName, allowRef);
 
+  // vendor properties
+  for(var key in oldDataType) {
+	  if (key.startsWith('x-')) {
+		  result[key] = oldDataType[key];
+	  }
+  }
+  
   var oldItems = oldDataType.items;
   if (isValue(oldItems)) {
     if (typeof oldItems === 'string') {
@@ -788,7 +795,15 @@ prototype.buildDefinitions = function(oldModels) {
       }
 
       if (!isValue(child.allOf)) {
+		var vendor = {};
+		for (var key in child) {
+			if (key.startsWith('x-')) {
+				vendor[key] = child[key];
+				delete child[key];
+			}
+		}
         models[childId] = child = {allOf: [child]};
+		extend(child, vendor);
       }
 
       child.allOf.push({$ref: '#/definitions/' + parentId});
